@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blanco Leon - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+    <script src="dashboard.js" defer></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="lion-logo.png" alt="Blanco Leon Logo" class="sidebar-logo">
+                <h1>Blanco Leon</h1>
+                <button class="collapse-btn">&lt;</button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <span class="icon">🏠</span>
+                    <span class="text">Principal</span>
+                    <span class="arrow">&gt;</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">⚡</span>
+                    <span class="text">Mejoras</span>
+                    <span class="arrow">&gt;</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="icon">📊</span>
+                    <span class="text">Estadisticas</span>
+                    <span class="arrow">&gt;</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Stats Header -->
+            <header class="stats-header">
+                <div class="stat-box-container">
+                    <span class="stat-label">Mejora:</span>
+                    <div class="stat-box">123%</div>
+                </div>
+                <div class="stat-box-container">
+                    <span class="stat-label">Tareas:</span>
+                    <div class="stat-box">23%</div>
+                </div>
+                <div class="date-display">
+                    <div id="current-date"></div>
+                    <div id="clock-display" style="font-size: 1.5rem; font-weight: bold; margin-top: 0.5rem;"></div>
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <div id="views-container">
+                <!-- Principal View -->
+                <div id="view-principal">
+                    <div class="dashboard-columns">
+                        <!-- Left Column -->
+                        <section class="column">
+                            <div class="column-header">
+                                <h2>No marcado</h2>
+                                <button class="pill-btn filter-btn">Filtrar</button>
+                            </div>
+                            <div class="task-list" id="principal-pending-list">
+                                <!-- Tasks rendered by JS -->
+                            </div>
+                        </section>
+
+                        <!-- Right Column -->
+                        <section class="column">
+                            <div class="column-header">
+                                <h2>Terminado o incumplido</h2>
+                                <button class="pill-btn category-btn">Elegir categoria</button>
+                            </div>
+                            <div class="task-list" id="principal-completed-list">
+                                <!-- Tasks rendered by JS -->
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Mejoras View -->
+                <div id="view-mejoras" style="display: none;">
+                    <div class="mejoras-header">
+                        <div class="left-controls">
+                            <h2>Mejoras</h2>
+                            <div class="search-controls">
+                                <button class="pill-btn">Filtrar</button>
+                                <button class="pill-btn">Buscar</button>
+                            </div>
+                        </div>
+                        <button class="create-btn" id="btn-new-mejora">Crear nueva mejora</button>
+                    </div>
+
+                    <div class="dashboard-columns">
+                        <div class="task-list full-width" id="mejoras-list">
+                            <!-- Mejoras rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Icon -->
+            <div class="footer-icon">
+                <img src="lion-logo.png" alt="Lion Statue" style="opacity: 0.5;">
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="mejora-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Nueva Mejora</h2>
+            <form id="mejora-form">
+                <div class="form-group">
+                    <label>Titulo</label>
+                    <input type="text" id="mejora-title" required placeholder="Ej: Estudiar Estadistica">
+                </div>
+                <div class="form-group">
+                    <label>Horario</label>
+                    <div class="time-inputs-wrapper">
+                        <!-- Start Picker -->
+                        <div class="custom-time-picker" id="picker-start-container">
+                            <div class="picker-trigger" id="trigger-start">08:00 AM</div>
+                            <div class="time-dropdown" id="dropdown-start">
+                                <!-- Options generated by JS -->
+                            </div>
+                            <input type="hidden" id="mejora-time-start" value="08:00">
+                        </div>
+
+                        <span class="time-separator-text">a</span>
+
+                        <!-- End Picker -->
+                        <div class="custom-time-picker" id="picker-end-container">
+                            <div class="picker-trigger" id="trigger-end">09:00 AM</div>
+                            <div class="time-dropdown" id="dropdown-end">
+                                <!-- Options generated by JS -->
+                            </div>
+                            <input type="hidden" id="mejora-time-end" value="09:00">
+                        </div>
+
+                        <div class="no-limit-checkbox">
+                            <input type="checkbox" id="mejora-no-limit">
+                            <label for="mejora-no-limit">Sin límite de tiempo</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Repetir el</label>
+                    <div class="days-selector">
+                        <button type="button" class="day-btn" data-day="0">D</button>
+                        <button type="button" class="day-btn" data-day="1">L</button>
+                        <button type="button" class="day-btn" data-day="2">M</button>
+                        <button type="button" class="day-btn" data-day="3">X</button>
+                        <button type="button" class="day-btn" data-day="4">J</button>
+                        <button type="button" class="day-btn" data-day="5">V</button>
+                        <button type="button" class="day-btn" data-day="6">S</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Finaliza</label>
+                    <div class="end-date-options">
+                        <div class="radio-option">
+                            <input type="radio" name="end-type" id="end-never" value="never" checked>
+                            <label for="end-never">Nunca</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" name="end-type" id="end-date-radio" value="date">
+                            <label for="end-date-radio">El</label>
+                            <input type="date" id="mejora-end-date" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Porcentaje de Mejora</label>
+                    <input type="number" id="mejora-gain" step="0.1" required placeholder="Ej: 0.5">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="btn-cancel-modal">Cancelar</button>
+                    <button type="submit" class="save-btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
